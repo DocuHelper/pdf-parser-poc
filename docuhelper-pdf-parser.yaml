@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: docuhelper-pdf-parser-deployment
+
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: docuhelper-pdf-parser
+  template:
+    metadata:
+      labels:
+        app: docuhelper-pdf-parser
+    spec:
+      containers:
+        - name: docuhelper-pdf-parser-container
+          image: docker.bmserver.org/docuhelper-pdf-parser
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: docuhelper-configmap-prod

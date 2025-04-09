@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime
 import requests
 import pymupdf4llm
@@ -6,16 +7,24 @@ from confluent_kafka import Consumer, KafkaException, Producer
 from ollama import Client
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-ollama = Client(host='http://192.168.0.8:11434')
+OLLAMA_HOST = os.environ.get("OLLAMA_HOST")
+OLLAMA_PORT = os.environ.get("OLLAMA_PORT")
+
+KAFKA_HOST = os.environ.get("KAFKA_HOST")
+KAFKA_PORT = os.environ.get("KAFKA_PORT")
+
+DOCUHELPER_FILE_ENDPOINT = os.environ.get("DOCUHELPER_FILE_ENDPOINT")
+
+ollama = Client(host=f"http://{OLLAMA_HOST}:{OLLAMA_PORT}")
 
 producer_config = {
-    'bootstrap.servers': '192.168.0.7:9092'  # Kafka 브로커 주소
+    'bootstrap.servers': f"{KAFKA_HOST}:{KAFKA_PORT}"
 }
 producer = Producer(producer_config)
 
 consumer_config = {
-    'bootstrap.servers': '192.168.0.7:9092',
-    'group.id': 'new_test_consumer_group',
+    'bootstrap.servers': f"{KAFKA_HOST}:{KAFKA_PORT}",
+    'group.id': 'docuhelper-pdf-parser',
     'auto.offset.reset': 'latest'
 }
 
@@ -139,7 +148,7 @@ try:
 
         document_uuid = message_json.get("document", {}).get("uuid")
         document_file_uuid = message_json.get("document", {}).get("file")
-        file_url = f"http://localhost:8082/file/{document_file_uuid}"
+        file_url = f"{DOCUHELPER_FILE_ENDPOINT}/file/{document_file_uuid}"
         print(f"Sending request to: {file_url}")
         # HTTP 요청 전송
         response = requests.get(file_url)

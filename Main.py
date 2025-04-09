@@ -15,6 +15,8 @@ KAFKA_PORT = os.environ.get("KAFKA_PORT")
 
 DOCUHELPER_FILE_ENDPOINT = os.environ.get("DOCUHELPER_FILE_ENDPOINT")
 
+os.makedirs("./pdf", exist_ok=True)
+
 ollama = Client(host=f"http://{OLLAMA_HOST}:{OLLAMA_PORT}")
 
 producer_config = {
